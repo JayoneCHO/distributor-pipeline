@@ -1,0 +1,14 @@
+{
+  "weights": {
+    "installation_yes": 15,
+    "training_yes": 10,
+    "after_sales_yes": 20,
+    "customer_type_target": 15,
+    "energy_devices_experience_yes": 15,
+    "coverage_national": 10,
+    "coverage_multi_city": 5,
+    "no_website_and_no_email_penalty": -10
+  },
+  "target_customer_types": ["hospital", "clinic", "derm", "dermatology"],
+  "excluded_customer_types": ["retail-only", "retail only", "retail"]
+}
