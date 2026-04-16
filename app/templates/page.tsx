@@ -3,12 +3,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PRODUCT_TAGS, TONES, USE_CASES } from "@/lib/constants";
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { generateDraft } from "@/lib/ai-service";
+import { TemplateGenerator } from "@/components/forms/template-generator";
 import { redirect } from "next/navigation";
 
-export default async function TemplatesPage({ searchParams }: { searchParams: Promise<{ leadId?: string }> }) {
+export default async function TemplatesPage() {
   await requireAuth();
-  const query = await searchParams;
 
   async function saveTemplate(formData: FormData) {
     "use server";
@@ -28,32 +27,21 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
 
   const leads = await prisma.lead.findMany({ include: { company: true, contact: true, products: true }, orderBy: { updatedAt: "desc" }, take: 40 });
   const templates = await prisma.messageTemplate.findMany({ orderBy: { createdAt: "desc" } });
-  const lead = leads.find((x) => x.id === query.leadId) || leads[0];
-
-  const sampleDraft = lead
-    ? generateDraft({
-        lead: { stage: lead.stage, sourceEvent: lead.sourceEvent, contactName: lead.contact.name, companyName: lead.company.name, country: lead.company.country },
-        channel: "email",
-        tone: "SOFT_BUSINESS",
-        useCase: "exhibition follow-up",
-        product: lead.products[0]?.product || PRODUCT_TAGS[0],
-      })
-    : "";
+  const leadOptions = leads.map((lead) => ({
+    id: lead.id,
+    companyName: lead.company.name,
+    contactName: lead.contact.name,
+    country: lead.company.country,
+    products: lead.products.map((p) => p.product),
+  }));
 
   return (
     <AppShell>
       <div className="grid gap-4 lg:grid-cols-3">
         <Card>
-          <CardHeader>Draft generator (editable only)</CardHeader>
+          <CardHeader>Draft generator (explicit Generate + save workflow)</CardHeader>
           <CardContent>
-            <form className="space-y-2">
-              <div><label>Lead</label><select>{leads.map((l) => <option key={l.id}>{l.company.name} / {l.contact.name}</option>)}</select></div>
-              <div><label>Use case</label><select>{USE_CASES.map((u) => <option key={u}>{u}</option>)}</select></div>
-              <div><label>Tone</label><select>{TONES.map((t) => <option key={t}>{t}</option>)}</select></div>
-              <div><label>Product</label><select>{PRODUCT_TAGS.map((p) => <option key={p}>{p}</option>)}</select></div>
-              <div><label>Email draft preview</label><textarea rows={8} defaultValue={sampleDraft} /></div>
-              <div><label>WhatsApp short draft preview</label><textarea rows={4} defaultValue={sampleDraft.slice(0, 220)} /></div>
-            </form>
+            <TemplateGenerator leads={leadOptions} useCases={[...USE_CASES]} tones={[...TONES]} products={[...PRODUCT_TAGS]} />
           </CardContent>
         </Card>
         <Card>

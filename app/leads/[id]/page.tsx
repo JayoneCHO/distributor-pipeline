@@ -48,7 +48,14 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
   const lead = await prisma.lead.findUniqueOrThrow({
     where: { id },
-    include: { company: true, contact: true, products: true, communications: { orderBy: { createdAt: "desc" } }, quotations: { orderBy: { issuedAt: "desc" }, take: 1 } },
+    include: {
+      company: true,
+      contact: true,
+      products: true,
+      communications: { orderBy: { createdAt: "desc" } },
+      quotations: { orderBy: { issuedAt: "desc" }, take: 1 },
+      attachments: { orderBy: { uploadedAt: "desc" } },
+    },
   });
 
   const draft = generateDraft({
@@ -131,6 +138,27 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               <div className="space-y-2 text-sm">
                 <div className="rounded border p-2 whitespace-pre-wrap">{draft}</div>
                 <div className="text-xs text-slate-500">Use Templates page for full use-case and tone controls ({USE_CASES.length} use-cases, {TONES.length} tones).</div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>Attachments (brochure / quotation files)</CardHeader>
+            <CardContent>
+              <form action="/api/attachments" method="post" encType="multipart/form-data" className="space-y-2">
+                <input type="hidden" name="leadId" value={lead.id} />
+                <input type="hidden" name="redirectTo" value={`/leads/${lead.id}`} />
+                <input type="file" name="file" required />
+                <button className="rounded bg-slate-900 px-3 py-2 text-sm text-white">Upload attachment</button>
+              </form>
+              <div className="mt-3 space-y-1 text-sm">
+                {lead.attachments.map((att) => (
+                  <div key={att.id} className="rounded border p-2">
+                    <div className="font-medium">{att.fileName}</div>
+                    <div className="text-xs text-slate-500">{att.fileType || "unknown"} · {formatDate(att.uploadedAt)}</div>
+                    {att.fileUrl ? <a className="text-blue-600 text-xs" href={att.fileUrl} target="_blank" rel="noreferrer">Open file</a> : null}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

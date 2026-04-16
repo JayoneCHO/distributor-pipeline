@@ -22,6 +22,10 @@ export default async function FollowupPage() {
 
   return (
     <AppShell>
+      <div className="mb-3 flex justify-end gap-2">
+        <a className="rounded border px-2 py-1 text-sm" href="/api/export/followups?format=csv">Follow-up CSV</a>
+        <a className="rounded border px-2 py-1 text-sm" href="/api/export/followups?format=xlsx">Follow-up XLSX</a>
+      </div>
       <div className="space-y-4">
         {buckets.map((bucket) => {
           const items = rows.filter((r) => r.buckets.includes(bucket));

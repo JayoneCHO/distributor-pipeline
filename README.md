@@ -28,10 +28,10 @@ Production-quality MVP for an overseas sales director managing global aesthetic 
 - Dedicated follow-up queue grouped by no-reply windows and stalled states.
 - AI service abstraction (mock) for timeline summary, next-action recommendation, and draft generation.
 - Draft manager for email/WhatsApp style content (editable, never auto-send).
-- Price template manager with global / market / special scopes.
+- Price template manager with global / market / special scopes + CRUD editing workflow.
 - CSV/XLSX export routes for leads, contacts, follow-up queue, quotations summary.
 - Placeholder API routes for future Gmail/Calendar integration.
-- Attachment model placeholder for brochure/quotation file workflows.
+- Attachment upload scaffolding for brochure/quotation files with metadata linked to each lead.
 - Seed data: 10 companies, 12 contacts, 20 leads with mixed stages and realistic international workflow examples.
 
 ## Local setup
@@ -81,7 +81,9 @@ Open `http://localhost:3000`.
 - `/api/export/contacts?format=csv`
 - `/api/export/contacts?format=xlsx`
 - `/api/export/followups`
+- `/api/export/followups?format=xlsx`
 - `/api/export/quotations`
+- `/api/export/quotations?format=xlsx`
 
 ## Notes
 - Single-admin login is intentional for MVP.
