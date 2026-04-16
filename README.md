@@ -1,72 +1,90 @@
-# Overseas Medical Device Sales Follow-up MVP
+# RUIKD Overseas Sales Follow-up Manager
 
-A Flask-based MVP web app for a Korean aesthetic medical device export sales manager.
+Production-quality MVP for an overseas sales director managing global aesthetic medical device opportunities.
 
-## Features
+## Stack
+- Next.js App Router + TypeScript
+- Tailwind CSS + shadcn-style UI components
+- Prisma ORM
+- SQLite (default for local) and PostgreSQL-ready via env
 
-- Lead database with fields: company, country, contact person, email, WhatsApp, source event, interested products.
-- Product tags included: `PICO RU`, `REBEAM`, `MIWAVE`, `FONS SVR`, `LAMIS XL`.
-- Timeline per lead for communication history.
-- Status pipeline: New Lead → Contacted → Waiting Reply → Negotiation → Closed Won → Closed Lost.
-- Follow-up reminder queue for leads without reply at 3, 7, and 14 days.
-- Draft generator for Email/WhatsApp by stage and product.
-- Message template manager (reusable templates with placeholders).
-- Price template manager (included options + optional handpieces).
-- Dashboard: overdue follow-ups, hot leads, country-wise opportunities.
-- Export leads to CSV and Excel.
-- API namespace placeholders for future Gmail/Calendar integrations.
-- Single-admin authentication for MVP.
+## Core pages
+- `/login`
+- `/dashboard`
+- `/leads`
+- `/companies`
+- `/leads/[id]`
+- `/followups`
+- `/templates`
+- `/prices`
+- `/settings`
 
-## Tech Stack
+## Features implemented
+- Dashboard with: overdue, today follow-ups, stage/country/product summaries, recent activities, quotation and negotiation alerts.
+- Lead + company/contact management with export-sales specific fields.
+- Pipeline stages: New Lead, Contacted, Waiting Reply, Negotiation, Quoted, Closed Won, Closed Lost, Dormant.
+- Multi-product tagging for core device lineup.
+- Communication timeline with multiple log categories and required metadata.
+- Dedicated follow-up queue grouped by no-reply windows and stalled states.
+- AI service abstraction (mock) for timeline summary, next-action recommendation, and draft generation.
+- Draft manager for email/WhatsApp style content (editable, never auto-send).
+- Price template manager with global / market / special scopes.
+- CSV/XLSX export routes for leads, contacts, follow-up queue, quotations summary.
+- Placeholder API routes for future Gmail/Calendar integration.
+- Attachment model placeholder for brochure/quotation file workflows.
+- Seed data: 10 companies, 12 contacts, 20 leads with mixed stages and realistic international workflow examples.
 
-- Backend: Flask + SQLAlchemy
-- DB: SQLite by default (switchable via `DATABASE_URL`)
-- UI: Server-rendered templates + Bootstrap 5
+## Local setup
 
-## Run Locally
-
-### 1) Create environment and install deps
-
+### 1) Install dependencies
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+npm install
 ```
 
-### 2) (Optional) Configure environment variables
-
+### 2) Prepare environment
 ```bash
-export SECRET_KEY='change-me'
-export ADMIN_USERNAME='admin'
-export ADMIN_PASSWORD='admin1234'
-# Optional DB override:
-# export DATABASE_URL='postgresql+psycopg://user:pass@localhost:5432/followup'
+cp .env.example .env
 ```
 
-### 3) Start app
-
-```bash
-python app.py
+Set these values in `.env`:
+```env
+DATABASE_PROVIDER="sqlite"
+DATABASE_URL="file:./dev.db"
+ADMIN_EMAIL="admin@ruikd.local"
+ADMIN_PASSWORD="admin1234"
+SESSION_SECRET="replace-with-random-long-string"
 ```
 
-Open `http://127.0.0.1:5000`.
+For PostgreSQL:
+```env
+DATABASE_PROVIDER="postgresql"
+DATABASE_URL="postgresql://user:password@localhost:5432/ruikd_followup"
+```
 
-Default login: `admin` / `admin1234` (or your env override).
+### 3) Generate DB + seed
+```bash
+npm run db:generate
+npm run db:push
+npm run db:seed
+```
 
-## API Notes
+### 4) Run app
+```bash
+npm run dev
+```
 
-Current API endpoint examples:
+Open `http://localhost:3000`.
 
-- `GET /api/v1/leads`
-- `POST /api/v1/integrations/gmail/sync` (placeholder)
-- `POST /api/v1/integrations/calendar/sync` (placeholder)
+## Export endpoints
+- `/api/export/leads?format=csv`
+- `/api/export/leads?format=xlsx`
+- `/api/export/contacts?format=csv`
+- `/api/export/contacts?format=xlsx`
+- `/api/export/followups`
+- `/api/export/quotations`
 
-These are intentionally structured to make future integration easy.
-
-## Suggested Next Steps (Post-MVP)
-
-- OAuth + role-based access.
-- Real Gmail/Calendar sync jobs.
-- Rich filtering/search and Kanban board drag/drop.
-- Activity analytics and conversion funnel metrics.
-- Multi-user support and permissions.
+## Notes
+- Single-admin login is intentional for MVP.
+- User model/relations are prepared for future multi-user expansion.
+- AI generation is abstracted in `lib/ai-service.ts` and currently mocked with deterministic business-safe logic.
+- AI does not auto-send, auto-close, auto-price, or modify contractual terms.

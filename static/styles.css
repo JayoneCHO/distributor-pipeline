@@ -1,5 +1,0 @@
-body { font-size: 0.95rem; }
-.card { border: 0; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.05); }
-.stat-card h3 { margin: 0; }
-.timeline-item { border-left: 3px solid #0d6efd; padding-left: 0.75rem; margin: 0.9rem 0; }
-.draft-box { white-space: pre-wrap; background: #f8f9fa; border: 1px solid #dee2e6; padding: 1rem; border-radius: 0.5rem; min-height: 180px; }
