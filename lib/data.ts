@@ -13,12 +13,12 @@ export async function getDashboardData() {
   });
 
   const followups = buildFollowupInsights(leads as any);
-  const leadsByStage = leads.reduce<Record<string, number>>((acc, lead) => {
+  const leadsByStage = leads.reduce<Record<string, number>>((acc: Record<string, number>, lead) => {
     acc[lead.stage] = (acc[lead.stage] || 0) + 1;
     return acc;
   }, {});
 
-  const leadsByCountry = leads.reduce<Record<string, number>>((acc, lead) => {
+  const leadsByCountry = leads.reduce<Record<string, number>>((acc: Record<string, number>, lead) => {
     acc[lead.company.country] = (acc[lead.company.country] || 0) + 1;
     return acc;
   }, {});

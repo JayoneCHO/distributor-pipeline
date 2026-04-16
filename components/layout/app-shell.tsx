@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ReactNode } from "react";
 
 const links = [
   ["/dashboard", "Dashboard"],
@@ -10,7 +11,7 @@ const links = [
   ["/settings", "Settings"],
 ] as const;
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="border-b bg-white px-6 py-3">
