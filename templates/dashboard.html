@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Dashboard</h2>
+  <div>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('export_csv') }}">Export CSV</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('export_xlsx') }}">Export Excel</a>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="card p-3 stat-card"><h6>Overdue Follow-ups</h6><h3>{{ overdue_count }}</h3></div></div>
+  <div class="col-md-4"><div class="card p-3 stat-card"><h6>Hot Leads</h6><h3>{{ hot_leads }}</h3></div></div>
+  <div class="col-md-4"><div class="card p-3 stat-card"><h6>Countries Covered</h6><h3>{{ country_summary|length }}</h3></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card p-3">
+      <h5>Follow-up Reminder Queue (3/7/14 days)</h5>
+      <table class="table table-sm">
+        <thead><tr><th>Lead</th><th>Days</th><th>Level</th><th>Last Outbound</th></tr></thead>
+        <tbody>
+          {% for item in followups %}
+            <tr>
+              <td><a href="{{ url_for('lead_detail', lead_id=item.lead.id) }}">{{ item.lead.company }}</a></td>
+              <td>{{ item.days_waiting }}</td>
+              <td><span class="badge text-bg-warning">{{ item.level }}d</span></td>
+              <td>{{ item.last_contact_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="4" class="text-muted">No overdue follow-ups.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card p-3">
+      <h5>Country-wise Opportunities</h5>
+      <ul class="list-group list-group-flush">
+      {% for country, count in country_summary.items() %}
+        <li class="list-group-item d-flex justify-content-between"><span>{{ country }}</span><strong>{{ count }}</strong></li>
+      {% else %}
+        <li class="list-group-item text-muted">No leads yet.</li>
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
