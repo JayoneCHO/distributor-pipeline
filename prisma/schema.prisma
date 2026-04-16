@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = env("DATABASE_PROVIDER")
+  url      = env("DATABASE_URL")
+}
+
+enum CompanyType {
+  DISTRIBUTOR
+  CLINIC
+  DEALER
+  HOSPITAL
+  END_USER
+}
+
+enum LeadStage {
+  NEW_LEAD
+  CONTACTED
+  WAITING_REPLY
+  NEGOTIATION
+  QUOTED
+  CLOSED_WON
+  CLOSED_LOST
+  DORMANT
+}
+
+enum CommunicationType {
+  EMAIL
+  WHATSAPP
+  MEETING
+  INTERNAL_NOTE
+  QUOTATION_NOTE
+  BROCHURE_SENT
+  TECHNICAL_DISCUSSION
+}
+
+enum DraftTone {
+  FORMAL
+  SOFT_BUSINESS
+  ACTIVE_SALES
+  SHORT_FOLLOW_UP
+}
+
+enum PriceScope {
+  GLOBAL_DEFAULT
+  MARKET_OVERRIDE
+  SPECIAL_OFFER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  communications Communication[]
+}
+
+model Company {
+  id               String      @id @default(cuid())
+  name             String
+  country          String
+  companyType      CompanyType
+  website          String?
+  sourceEvent      String?
+  notes            String?
+  internalComments String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  contacts Contact[]
+  leads    Lead[]
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String
+  title     String?
+  email     String
+  whatsapp  String?
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  leads   Lead[]
+}
+
+model Lead {
+  id               String    @id @default(cuid())
+  companyId        String
+  contactId        String
+  stage            LeadStage @default(NEW_LEAD)
+  sourceEvent      String?
+  notes            String?
+  internalComments String?
+  nextFollowupDate DateTime?
+  latestOfferedPrice Decimal? @db.Decimal(12,2)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contact         Contact          @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  products        LeadProduct[]
+  communications  Communication[]
+  quotations      Quotation[]
+  attachments     Attachment[]
+
+  @@index([stage])
+}
+
+model LeadProduct {
+  id      String @id @default(cuid())
+  leadId  String
+  product String
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@unique([leadId, product])
+}
+
+model Communication {
+  id         String            @id @default(cuid())
+  leadId      String
+  type        CommunicationType
+  title       String
+  summary     String
+  content     String
+  createdById String
+  createdAt   DateTime          @default(now())
+
+  lead      Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@index([leadId, createdAt])
+}
+
+model MessageTemplate {
+  id        String    @id @default(cuid())
+  name      String
+  useCase   String
+  channel   String
+  tone      DraftTone
+  product   String?
+  content   String
+  createdAt DateTime  @default(now())
+}
+
+model PriceTemplate {
+  id                   String     @id @default(cuid())
+  product              String
+  scope                PriceScope
+  market               String?
+  basePrice            Decimal    @db.Decimal(12,2)
+  promoPrice           Decimal?   @db.Decimal(12,2)
+  includedAccessories  String
+  optionalAccessories  String?
+  paymentTerms         String
+  leadTime             String
+  shippingTerms        String
+  remarks              String?
+  marketNotes          String?
+  active               Boolean    @default(true)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+}
+
+model Quotation {
+  id         String   @id @default(cuid())
+  leadId      String
+  quoteNo     String
+  amount      Decimal @db.Decimal(12,2)
+  currency    String  @default("USD")
+  status      String
+  issuedAt    DateTime @default(now())
+  followupDue DateTime?
+  notes       String?
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+// Placeholder for future brochure/quotation attachments integration (S3, Drive, etc.)
+model Attachment {
+  id         String   @id @default(cuid())
+  leadId      String
+  fileName    String
+  fileUrl     String?
+  fileType    String?
+  uploadedAt  DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
