@@ -15,10 +15,12 @@ type Props = {
   useCases: string[];
   tones: string[];
   products: string[];
+  initialLeadId?: string;
 };
 
-export function TemplateGenerator({ leads, useCases, tones, products }: Props) {
-  const [leadId, setLeadId] = useState(leads[0]?.id || "");
+export function TemplateGenerator({ leads, useCases, tones, products, initialLeadId }: Props) {
+  const initialSelectedLeadId = leads.find((l) => l.id === initialLeadId)?.id || leads[0]?.id || "";
+  const [leadId, setLeadId] = useState(initialSelectedLeadId);
   const [useCase, setUseCase] = useState(useCases[0] || "");
   const [tone, setTone] = useState(tones[1] || tones[0] || "SOFT_BUSINESS");
   const [channel, setChannel] = useState<"email" | "whatsapp">("email");

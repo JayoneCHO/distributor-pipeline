@@ -30,7 +30,11 @@ export async function GET(request: Request) {
 
   const csv = [
     "quoteNo,company,contact,amount,currency,status,issuedAt,followupDue",
-    ...rows.map((q) => [q.quoteNo, q.company, q.contact, q.amount, q.currency, q.status, q.issuedAt, q.followupDue].join(",")),
+    ...rows.map((q) =>
+      [q.quoteNo, q.company, q.contact, q.amount, q.currency, q.status, q.issuedAt, q.followupDue]
+        .map((v) => `\"${String(v).replaceAll('\"', '\"\"')}\"`)
+        .join(","),
+    ),
   ].join("\n");
   return new NextResponse(csv, { headers: { "Content-Type": "text/csv", "Content-Disposition": "attachment; filename=quotation-summary.csv" } });
 }

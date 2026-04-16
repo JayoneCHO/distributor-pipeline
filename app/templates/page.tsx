@@ -6,8 +6,9 @@ import { prisma } from "@/lib/prisma";
 import { TemplateGenerator } from "@/components/forms/template-generator";
 import { redirect } from "next/navigation";
 
-export default async function TemplatesPage() {
+export default async function TemplatesPage({ searchParams }: { searchParams: Promise<{ leadId?: string }> }) {
   await requireAuth();
+  const initialLeadId = (await searchParams).leadId;
 
   async function saveTemplate(formData: FormData) {
     "use server";
@@ -41,7 +42,7 @@ export default async function TemplatesPage() {
         <Card>
           <CardHeader>Draft generator (explicit Generate + save workflow)</CardHeader>
           <CardContent>
-            <TemplateGenerator leads={leadOptions} useCases={[...USE_CASES]} tones={[...TONES]} products={[...PRODUCT_TAGS]} />
+            <TemplateGenerator leads={leadOptions} useCases={[...USE_CASES]} tones={[...TONES]} products={[...PRODUCT_TAGS]} initialLeadId={initialLeadId} />
           </CardContent>
         </Card>
         <Card>
